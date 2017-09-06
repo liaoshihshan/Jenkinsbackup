@@ -1,0 +1,1 @@
+Restore完後，在jenkins的網址後面加上restart(重新啟動jenkins)就可以還原為原有的Jenkins設定。
