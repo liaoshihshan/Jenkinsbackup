@@ -1,0 +1,133 @@
+觀念 : 
+透過docker-machine來控制多台docker engine
+透過docker-swarm來整合多台docker engine資源
+透過docker-compose來配置多個docker之間的溝通
+
+安裝docker : 
+sudo apt-get update 
+sudo apt-get install docker-engine
+
+確認docker安裝 :
+docker -v
+
+啟動docker : 
+sudo service docker start
+
+查詢docker狀態 : 
+sudo service docker status
+
+查詢docker映像 : 
+docker images
+docker images -a -q(只列出ImageID)
+
+查詢映像的建立紀錄 : 
+docker history ImageID(可以打前三個字)
+
+檢視映像的詳細資訊 : 
+docker inspect ImageID(可以打前三個字)
+
+刪除映像(映像檔必須沒有運行的容器才能刪除) : 
+docker rmi ImageID(可以打前三個字)
+
+刪除所有映像 : 
+docker rmi $(docker images -a -q)
+
+查詢docker容器 : 
+docker ps -a
+docker ps -a -q(只列出ContainerID)
+
+啟動容器 : 
+docker start ContainerID(可以打前三個字)
+
+停止容器 : 
+docker stop ContainerID(可以打前三個字)
+
+匯出容器中的映像 :
+1.docker save -o 匯出檔案的名稱.tar image名稱:Tag名稱
+2.docker export Container名稱(NANES) > 匯出檔案的名稱.tar
+
+匯入容器中的映像 :
+1.docker load --i 匯出檔案的名稱.tar
+2.cat 匯出檔案的名稱.tar | docker import - Image名稱
+
+刪除容器[強制刪除在rm後加入-f] : 
+docker rm ContainerID
+
+刪除所有容器 : 
+docker rm $(docker ps -a -q)
+
+docker pull from Repository :
+docker pull image名稱:Tag名稱(版本)
+
+docker push image to Docker Hub Repository : 
+docker login
+docker push image名稱(/前必須是Docker的ID):Tag名稱(版本)
+
+將Image製作成容器並啟動 : 
+docker run -t -i Image名稱 bash
+(ps : 出現root@ContainerID:/#可以輸入exit離開)
+
+查詢正在啟動的容器 : 
+docker ps
+
+在背景長時間執行指令(-d表示背景下執行) : 
+docker run -d -it 正在啟動容器的Image名稱 ping google.com
+
+檢視ping google.com指令的輸出 : 
+docker logs ContainerID(可以打前三個字)[持續顯示最新的輸出可以在logs後面加入-f，結束用Ctrl+C]
+
+進入在背景執行的容器執行Bash Shell指令 : 
+docker exec -ti ContainerID(可以打前三個字) /bin/bash
+
+查詢在背景執行容器正在執行的行程 : 
+docker exec -ti ContainerID(可以打前三個字) ps aux
+
+製作成映像 : 
+docker commit Container的ID Image名稱
+
+執行映像 : docker exec -it ContainerID bash (Status 要UP)
+
+啟動private registry server : 
+docker run -d -p 5000[本機的port]:5000[Container的port] --restart=always --name[替Container取名字] registry registry:2[用來建立Container的Image]
+
+Dockfile : 
+FROM : 基礎映像(以什麼image為基底)。
+MAINTAINER : 維護image的人。
+RUN : 在image內執行的指令。
+COPY : 將本機檔案或目錄複製到image內使用(COPY 來源路徑 目標路徑)。
+ADD : 將本機的檔案或遠端的檔案加入到image內的目錄，如果是壓縮檔會自動解壓縮(ADD 來源路徑 目標路徑)。
+
+讀取Dockerfile存成映像 : 
+docker build -t Image名稱 .
+
+Expose(Container跟Container之間的port的溝通)[可以用查詢正在啟動的容器看port] : 
+docker run -d --expose port號 Image名稱
+
+Port(Container與本機進行溝通) : 
+docker run -d -p 8888(本機port號):80(Container的port號) Image名稱
+查看port號存取 : 
+curl http://localhost:8888(本機port號)或在瀏覽器上打http://localhost:8888
+
+Docker Hub : 
+Email : john78530@yahoo.com.tw
+DockerID : john78530
+password : student
+登入Docker Hub : 
+docker login -e Email -p password -u DockerID
+
+Docker volume(主機與容器間的共享資料夾，可用來匯入或匯出容器內的資料也可以共享容器間的資料)[把資料獨立在Image之外來保存] : 
+
+建立volume : 
+docker volume create --name volume名稱
+
+查詢所有volume :
+docker volume ls
+
+查詢檔案位置(Mountpoint) : 
+docker volume inspect volume名稱
+
+移除volume : 
+docker volume rm volume名稱
+
+清除沒在使用的volume : 
+docker volume prune
